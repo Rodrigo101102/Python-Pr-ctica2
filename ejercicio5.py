@@ -1,52 +1,52 @@
-def mostrar_menu():
-    print("\n--- Menú de Operaciones Matemáticas ---")
-    print("1. Sumar dos números")
-    print("2. Restar dos números")
-    print("3. Multiplicar dos números")
-    print("4. Dividir dos números")
-    print("5. Salir")
 
-def obtener_numeros():
-    while True:
-        try:
-            num1 = float(input("Ingresa el primer número: "))
-            num2 = float(input("Ingresa el segundo número: "))
-            return num1, num2
-        except ValueError:
-            print("Por favor, ingresa un número válido.")
+from tabulate import tabulate
 
-def ejecutar_opcion(opcion):
-    if opcion == 1:
-        num1, num2 = obtener_numeros()
-        print(f"El resultado de la suma es: {num1 + num2}")
-    elif opcion == 2:
-        num1, num2 = obtener_numeros()
-        print(f"El resultado de la resta es: {num1 - num2}")
-    elif opcion == 3:
-        num1, num2 = obtener_numeros()
-        print(f"El resultado de la multiplicación es: {num1 * num2}")
-    elif opcion == 4:
-        num1, num2 = obtener_numeros()
-        if num2 == 0:
-            print("No se puede dividir entre cero.")
-        else:
-            print(f"El resultado de la división es: {num1 / num2}")
-    elif opcion == 5:
-        print("Saliendo del programa. ¡Hasta luego!")
-    else:
-        print("Opción no válida, por favor selecciona una opción del menú.")
+def ingresar_datos_estudiantes(cantidad_estudiantes):
+    estudiantes = []
+    for i in range(1, cantidad_estudiantes + 1):
+        nombre = input(f"Ingresa el nombre del estudiante {i}: ")
+        while True:
+            try:
+                calificacion = float(input(f"Ingresa la calificación de {nombre} (entre 0 y 20): "))
+                if 0 <= calificacion <= 20:
+                    estudiantes.append([nombre, calificacion])
+                    break
+                else:
+                    print("La calificación debe estar entre 0 y 20.")
+            except ValueError:
+                print("Por favor, ingresa un número válido.")
+    return estudiantes
 
-def programa_menu():
-    while True:
-        mostrar_menu()
-        try:
-            opcion = int(input("Selecciona una opción (1-5): "))
-            if opcion == 5:
-                ejecutar_opcion(opcion)
-                break
-            ejecutar_opcion(opcion)
-        except ValueError:
-            print("Por favor, ingresa un número válido.")
+def determinar_estado(calificacion):
+    return "Aprobado" if calificacion >= 10.5 else "Desaprobado"
+
+def ordenar_estudiantes(estudiantes):
+    # Ordenar la lista de estudiantes por calificación de mayor a menor
+    return sorted(estudiantes, key=lambda estudiante: estudiante[1], reverse=True)
+
+def mostrar_tabla_estudiantes(estudiantes):
+    tabla = []
+    for estudiante in estudiantes:
+        nombre, calificacion = estudiante
+        estado = determinar_estado(calificacion)
+        tabla.append([nombre, calificacion, estado])
+    
+    # Usamos tabulate para mostrar los datos en formato de tabla
+    print(tabulate(tabla, headers=["Nombre", "Nota", "Estado"], tablefmt="grid"))
+
+def programa_estudiantes():
+    try:
+        cantidad_estudiantes = int(input("¿Cuántos estudiantes hay en el curso? "))
+        if cantidad_estudiantes <= 0:
+            print("La cantidad de estudiantes debe ser mayor que 0.")
+            return
+    except ValueError:
+        print("Por favor, ingresa un número válido.")
+        return
+    
+    estudiantes = ingresar_datos_estudiantes(cantidad_estudiantes)
+    estudiantes_ordenados = ordenar_estudiantes(estudiantes)
+    mostrar_tabla_estudiantes(estudiantes_ordenados)
 
 # Ejecutar el programa
-programa_menu()
+programa_estudiantes()
