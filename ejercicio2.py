@@ -11,9 +11,9 @@ try:
             print(" ingresas felicidaes   ")
     else:
          if usuario <= 16:
-             print (" no puedes tributar , tienes que ser mayor de 16 años  ")
+            print (" no puedes tributar , tienes que ser mayor de 16 años  ")
          elif ingresos_mensuales > 1000:
-              print (" no puedes tributar , tus ingresos son menores a 1000")
+            print (" no puedes tributar , tus ingresos son menores a 1000")
         
 except ValueError:
        print (" po favor , introduce un valor numerico valido ")
