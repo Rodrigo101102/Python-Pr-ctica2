@@ -1,3 +1,5 @@
+import json
+from colorama import Fore, Style
 from tabulate import tabulate
 def ingresar_datos_estudiantes(cantidad_estudiantes):
     estudiantes = []
@@ -27,7 +29,8 @@ def mostrar_tabla_estudiantes(estudiantes):
     for estudiante in estudiantes:
         nombre, calificacion = estudiante
         estado = determinar_estado(calificacion)
-        tabla.append([nombre, calificacion, estado])
+        color_estado = Fore.GREEN if estado == "Aprobado" else Fore.RED 
+        tabla.append([nombre, calificacion, f"{color_estado}{estado}{Style.RESET_ALL}"])
     
     # Usamos tabulate para mostrar los datos en formato de tabla
     print(tabulate(tabla, headers=["Nombre", "Nota", "Estado"], tablefmt="grid"))
