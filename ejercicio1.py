@@ -6,5 +6,3 @@ if password_ingresada.lower() == password_guardada.lower():
 else:
     print("La contraseña es incorrecta.")
     
-    print("Hola")
-    
