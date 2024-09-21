@@ -1,6 +1,4 @@
-
 from tabulate import tabulate
-
 def ingresar_datos_estudiantes(cantidad_estudiantes):
     estudiantes = []
     for i in range(1, cantidad_estudiantes + 1):
