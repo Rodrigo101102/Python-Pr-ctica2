@@ -1,107 +1,158 @@
-from colorama import Fore, Style
+from colorama import Fore, Style, init
 from tabulate import tabulate
+
+# Inicializar colorama
+init(autoreset=True)
 
 def ingresar_datos_estudiantes(estudiantes, cantidad_estudiantes):
     for i in range(1, cantidad_estudiantes + 1):
         nombre = input(f"Ingresa el nombre del estudiante {i}: ")
+        
+        # Ingreso de la primera nota
         while True:
             try:
-                calificacion = float(input(f"Ingresa la calificación de {nombre} (entre 0 y 20): "))
-                if 0 <= calificacion <= 20:
-                    estudiantes.append([nombre, calificacion])
+                nota1 = float(input(f"Ingresa la primera nota de {nombre} (entre 0 y 20): "))
+                if 0 <= nota1 <= 20:
                     break
                 else:
-                    print("La calificación debe estar entre 0 y 20.")
+                    print(Fore.RED + "La nota debe estar entre 0 y 20.")
             except ValueError:
-                print("Por favor, ingresa un número válido.")
+                print(Fore.RED + "Por favor, ingresa un número válido para la primera nota.")
+        
+        # Ingreso de la segunda nota
+        while True:
+            try:
+                nota2 = float(input(f"Ingresa la segunda nota de {nombre} (entre 0 y 20): "))
+                if 0 <= nota2 <= 20:
+                    break
+                else:
+                    print(Fore.RED + "La nota debe estar entre 0 y 20.")
+            except ValueError:
+                print(Fore.RED + "Por favor, ingresa un número válido para la segunda nota.")
+        
+        promedio = (nota1 + nota2) / 2
+        estudiantes.append([nombre, nota1, nota2, promedio])
+    
     return estudiantes
 
-def determinar_estado(calificacion):
-    return "Aprobado" if calificacion >= 10.5 else "Desaprobado"
+def determinar_estado(promedio):
+    return "Aprobado" if promedio >= 10.5 else "Desaprobado"
 
-def mostrar_tabla_estudiantes(estudiantes):
+def mostrar_tabla_estudiantes(estudiantes, con_indice=True):
     tabla = []
     for idx, estudiante in enumerate(estudiantes, start=1):
-        nombre, calificacion = estudiante
-        estado = determinar_estado(calificacion)
+        nombre, nota1, nota2, promedio = estudiante
+        estado = determinar_estado(promedio)
         color_estado = Fore.GREEN if estado == "Aprobado" else Fore.RED
-        tabla.append([idx, nombre, calificacion, f"{color_estado}{estado}{Style.RESET_ALL}"])
-    
-    print(tabulate(tabla, headers=["#", "Nombre", "Nota", "Estado"], tablefmt="grid"))
+        fila = [idx, nombre, nota1, nota2, promedio, f"{color_estado}{estado}{Style.RESET_ALL}"] if con_indice else [nombre, nota1, nota2, promedio, f"{color_estado}{estado}{Style.RESET_ALL}"]
+        tabla.append(fila)
+
+    headers = ["#", "Nombre", "Nota 1", "Nota 2", "Promedio", "Estado"] if con_indice else ["Nombre", "Nota 1", "Nota 2", "Promedio", "Estado"]
+    print(tabulate(tabla, headers=headers, tablefmt="grid"))
 
 def editar_estudiante(estudiantes):
-    mostrar_tabla_estudiantes(estudiantes)
-    try:
-        numero = int(input("Ingresa el número del estudiante cuya nota deseas editar: ")) - 1
-        if 0 <= numero < len(estudiantes):
-            while True:
-                try:
-                    nueva_calificacion = float(input(f"Ingresa la nueva calificación (actual: {estudiantes[numero][1]}): "))
-                    if 0 <= nueva_calificacion <= 20:
-                        estudiantes[numero][1] = nueva_calificacion  # Solo editar la nota
-                        break
+    if estudiantes:
+        while True:
+            print("\nLista de estudiantes:")
+            mostrar_tabla_estudiantes(estudiantes)  # Mostrar tabla con índice
+            try:
+                numero = int(input(Fore.CYAN + "Ingresa el número del estudiante que deseas editar o 0 para volver al menú: ")) - 1
+                if numero == -1:
+                    break  # Volver al menú
+                elif 0 <= numero < len(estudiantes):
+                    print(f"1. Nombre actual: {estudiantes[numero][0]}")
+                    print(f"2. Nota 1 actual: {estudiantes[numero][1]}")
+                    print(f"3. Nota 2 actual: {estudiantes[numero][2]}")
+                    opcion_editar = input(Fore.CYAN + "¿Qué deseas editar? (1=Nombre, 2=Nota 1, 3=Nota 2, 0=Volver al menú): ")
+                    if opcion_editar == "1":
+                        nuevo_nombre = input("Ingresa el nuevo nombre: ")
+                        estudiantes[numero][0] = nuevo_nombre
+                    elif opcion_editar == "2":
+                        nueva_nota1 = float(input("Ingresa la nueva Nota 1: "))
+                        estudiantes[numero][1] = nueva_nota1
+                    elif opcion_editar == "3":
+                        nueva_nota2 = float(input("Ingresa la nueva Nota 2: "))
+                        estudiantes[numero][2] = nueva_nota2
+                    elif opcion_editar == "0":
+                        break  # Volver al menú
                     else:
-                        print("La calificación debe estar entre 0 y 20.")
-                except ValueError:
-                    print("Por favor, ingresa un número válido.")
-        else:
-            print("Número de estudiante no válido.")
-    except ValueError:
-        print("Por favor, ingresa un número válido.")
-
-def filtrar_estudiante(estudiantes):
-    nombre_buscar = input("Ingresa el nombre del estudiante a buscar: ")
-    filtrados = [estudiante for estudiante in estudiantes if estudiante[0].lower() == nombre_buscar.lower()]
-    
-    if filtrados:
-        mostrar_tabla_estudiantes(filtrados)
+                        print(Fore.YELLOW + "Opción no válida. Intenta de nuevo.")
+                    estudiantes[numero][3] = (estudiantes[numero][1] + estudiantes[numero][2]) / 2
+                else:
+                    print(Fore.YELLOW + "Número de estudiante no válido. Intenta de nuevo.")
+            except ValueError:
+                print(Fore.YELLOW + "Por favor, ingresa un número válido.")
     else:
-        print("Estudiante no encontrado.")
+        print(Fore.RED + "No hay estudiantes registrados.")
+
+def borrar_estudiante(estudiantes):
+    if estudiantes:
+        while True:
+            print("\nLista de estudiantes:")
+            mostrar_tabla_estudiantes(estudiantes)  # Mostrar tabla con índice
+            try:
+                numero = int(input(Fore.CYAN + "Ingresa el número del estudiante que deseas borrar o 0 para volver al menú: ")) - 1
+                if numero == -1:
+                    break  # Volver al menú
+                elif 0 <= numero < len(estudiantes):
+                    estudiantes.pop(numero)
+                    print(Fore.GREEN + "Estudiante eliminado.")
+                else:
+                    print(Fore.YELLOW + "Número de estudiante no válido. Intenta de nuevo.")
+            except ValueError:
+                print(Fore.YELLOW + "Por favor, ingresa un número válido.")
+    else:
+        print(Fore.RED + "No hay estudiantes registrados.")
+
+def mostrar_estudiantes_ordenados(estudiantes):
+    if estudiantes:
+        estudiantes_ordenados = sorted(estudiantes, key=lambda x: x[3], reverse=True)
+        mostrar_tabla_estudiantes(estudiantes_ordenados, con_indice=False)  # Mostrar tabla sin índice
+    else:
+        print(Fore.RED + "No hay estudiantes registrados.")
 
 def programa_estudiantes():
-    estudiantes = []  # Lista vacía al inicio del programa
+    estudiantes = []
 
     while True:
-        print("\nMenú:")
-        print("1. Ingresar notas de estudiantes")
-        print("2. Editar nota de un estudiante")
-        print("3. Filtrar estudiante por nombre")
-        print("4. Salir")
+        print(Fore.BLUE + "\nMenú:")
+        print(Fore.CYAN + "1. Ingresar estudiantes")
+        print(Fore.CYAN + "2. Editar estudiante")
+        print(Fore.CYAN + "3. Borrar estudiante")
+        print(Fore.CYAN + "4. Mostrar estudiantes ordenados por promedio")
+        print(Fore.CYAN + "5. Salir")
 
-        opcion = input("Selecciona una opción: ")
+        opcion = input(Fore.CYAN + "Selecciona una opción: ")
 
         if opcion == "1":
             try:
                 cantidad_estudiantes = int(input("¿Cuántos estudiantes deseas agregar? "))
                 if cantidad_estudiantes <= 0:
-                    print("La cantidad de estudiantes debe ser mayor que 0.")
+                    print(Fore.YELLOW + "La cantidad de estudiantes debe ser mayor que 0.")
                     continue
             except ValueError:
-                print("Por favor, ingresa un número válido.")
+                print(Fore.YELLOW + "Por favor, ingresa un número válido.")
                 continue
             
-            estudiantes = ingresar_datos_estudiantes(estudiantes, cantidad_estudiantes)  # Agregar estudiantes a la lista
+            estudiantes = ingresar_datos_estudiantes(estudiantes, cantidad_estudiantes)
             mostrar_tabla_estudiantes(estudiantes)
 
         elif opcion == "2":
-            if estudiantes:
-                editar_estudiante(estudiantes)
-                mostrar_tabla_estudiantes(estudiantes)
-            else:
-                print("No hay estudiantes registrados.")
+            editar_estudiante(estudiantes)
 
         elif opcion == "3":
-            if estudiantes:
-                filtrar_estudiante(estudiantes)
-            else:
-                print("No hay estudiantes registrados.")
+            borrar_estudiante(estudiantes)
 
         elif opcion == "4":
-            print("Saliendo del programa.")
+            print("\n" + Fore.WHITE + "Estudiantes ordenados por promedio:")
+            mostrar_estudiantes_ordenados(estudiantes)
+
+        elif opcion == "5":
+            print(Fore.GREEN + "Saliendo del programa.")
             break
 
         else:
-            print("Opción no válida. Por favor, intenta de nuevo.")
+            print(Fore.YELLOW + "Opción no válida. Por favor, intenta de nuevo.")
 
 # Ejecutar el programa
 programa_estudiantes()
