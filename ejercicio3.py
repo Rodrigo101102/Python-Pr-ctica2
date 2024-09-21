@@ -1,3 +1,4 @@
+#Ejer3
 def obtener_renta():
     while True:
         try:
